@@ -1,3 +1,9 @@
+"""
+Instructions to Run. 
+Have the datasets directory in this directory
+run: python linear_classification.py
+"""
+
 from mnist import MNIST
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +19,7 @@ def plot_image(image_list):
 """
 Inputs: all_images = N x 784 matrix
         all_labels = Nx1 - column vector
-Outputs: W (weights): 785x1 column vector
+Outputs: W (weights): 785x1 column vector, optimal threshold.
 Effects: 
     Uses Linear Regression to train a binary classifier for label1 and label2
     The input images only for labels 1 and 2 are used for the classifier. 
@@ -24,7 +30,7 @@ Effects:
     See pseudoi() function
 """
 def train(all_images, all_labels, label1: int, label2: int)->np.ndarray:
-    print(f"Training weights for {label1} and {label2}\n.\n.\n.")
+    print(f"Training weights for {label1} and {label2}\n...")
 
     #creates a mask for the features true if the label is either l1 or l2
     valid_indices = (all_labels != label1)*(all_labels != label2)
@@ -46,7 +52,9 @@ def train(all_images, all_labels, label1: int, label2: int)->np.ndarray:
     Xy = X.dot(y)
     pinv = pseudoi(XX_T)
     W = pinv.dot(Xy)
-    return W
+    op = get_optimal_thresh(X.T, y, W)
+    print(f"The optimal threshold is {op:.3f}")
+    return W, op
 
 """
 returns the pseudo-inverse of arr
@@ -54,8 +62,33 @@ returns the pseudo-inverse of arr
 def pseudoi(arr: np.array, epsilon = 0.0001)->np.array:
     return np.linalg.inv(arr + np.identity(arr.shape[0])*epsilon)
 
-def get_optimal_thresh(images_train, labels_train, w):
-    return 0.5
+"""
+Input: images_train Nx785 matrix
+       labels_train Nx1 vector
+       w: 785x1 vector
+Output: Optimal threshold
+"""
+def get_optimal_thresh(images_train, labels_train, w)->float:
+    """
+    Effect: iterate from 0.001 - 0.999 and determine the threshold with the smallest loss on the training set
+    """
+    optimal_thresh = 0.001
+    best_percent_correct = 0.0
+
+    prob = images_train.dot(w)
+    
+    #for every test threshold, determine how good it is. 
+    for i in range(1, 1000):
+        test_threshold = i/1000
+        pred = np.where(prob>test_threshold, 0, 1)
+        #calculate percentage correct
+        percent_correct = np.sum(np.where(pred == labels_train, 0, 1))/labels_train.shape[0]
+        #if percentage better, update best percentage and optimal threshold
+        if percent_correct>best_percent_correct: 
+            best_percent_correct = percent_correct
+            optimal_thresh = test_threshold
+
+    return optimal_thresh
 
 """
 Inputs: all_images_test: Nx784 matrix with all test images
@@ -117,7 +150,6 @@ if __name__ == "__main__":
     """
     for i in range(10):
         for j in range(i+1, 10):
-            W = train(images_list, labels_list, i, j)
-            thresh = get_optimal_thresh(images_list, labels_list, W)
+            W, thresh = train(images_list, labels_list, i, j)
             test(images_list_test, labels_list_test, i, j, W, thresh)
 
