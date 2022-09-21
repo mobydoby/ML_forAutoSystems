@@ -7,7 +7,7 @@ run: python linear_classification.py
 from mnist import MNIST
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
+import pandas as pd
 
 def plot_image(image_list):
     image = np.asarray(image_list)
@@ -76,6 +76,7 @@ def get_optimal_thresh(images_train, labels_train, w)->float:
     best_percent_correct = 0.0
 
     prob = images_train.dot(w)
+    # prob = prob/(np.max(prob))
     
     #for every test threshold, determine how good it is. 
     for i in range(1, 1000):
@@ -148,8 +149,16 @@ if __name__ == "__main__":
     """
     for every pair of numbers from 0-9, find the classifier and determine accuracy on test data
     """
+    all_weights = np.empty((0,785))
+    print(all_weights.shape)
     for i in range(10):
         for j in range(i+1, 10):
             W, thresh = train(images_list, labels_list, i, j)
+            print(W.shape)
+            # print(np.mean(W), np.median(W))
             test(images_list_test, labels_list_test, i, j, W, thresh)
+            all_weights = np.vstack((all_weights, W))
+            print(all_weights.shape)
+    print(all_weights.shape)
+    pd.DataFrame(all_weights).to_csv('weights.csv')
 
