@@ -26,20 +26,22 @@ class DecisionTree:
 
         decision = self.node_list[node_index]
         #if the decision node is a leaf, we want to label the prediction
-        if (decision.isLeaf == True): 
+        if (decision.isLeaf() == True): 
             
             #change the labels of the groups global predictions variable to label of this node
             self.prediction = np.where(group == True, decision.getLabel(), self.prediction)
        
         # not a leaf node, so we must split 
         else: 
-            assert(self.next1!=-1 and self.next2!=-1)
+            assert(decision.next1!=-1 and decision.next2!=-1)
             decision = self.node_list[node_index]
 
             # left and right group are the "groups" that can be futher split by the next node
-            left_group, right_group = decision.split(X)
+            left_group, right_group = decision.split(features = X, g = group)
             (left_index, right_index) = decision.getNext()
 
+            # TODO: problem!!! keeps old prediction matrix size no bueno
+            # need to change 
             self.branch(X, left_index, left_group)
             self.branch(X, right_index, right_group)
 
@@ -49,7 +51,8 @@ class DecisionTree:
         """
         #initialize prediction vector
         self.prediction = np.ones(X.shape[1])
-        group = np.ma.make(self.prediction.shape[0])
+        
+        group = np.ma.make_mask(self.prediction.shape[0])
         #start at the head node and call recursive branch function
         self.branch(X, 0, group)
         return self.prediction    
@@ -70,8 +73,8 @@ class DecisionTree:
         leaf = self.node_list[ind]
         other_loss = sum([i.getLoss() for i in self.node_list if i.isLeaf()]) - leaf.getLoss()
         left_mask, right_mask = leaf.split(X, threshold, dimension)
-        left_label = stats.mode(Y[left_mask], keepdims=True)
-        right_label = stats.mode(Y[right_mask], keepdims=True)
+        left_label = stats.mode(Y[left_mask], keepdims=True)[0]
+        right_label = stats.mode(Y[right_mask], keepdims=True)[0]
         loss_for_split = np.sum(np.where(Y[left_mask]!=left_label, 1, 0)) +\
                          np.sum(np.where(Y[right_mask]!=right_label, 1, 0))
         return other_loss + loss_for_split
@@ -96,7 +99,7 @@ class DecisionTree:
             Returns the most occuring label in within the group
             """
             filtered_labels = labels[group]
-            return stats.mode(filtered_labels, keepdims=False)
+            return stats.mode(filtered_labels, keepdims=False)[0]
 
         # split the node (returns 2 boolean masks for indicies in left and right group)
         left_group, right_group = node.split(features)
@@ -125,7 +128,7 @@ class DecisionTree:
         The 0-1 loss function for each split is considered. 
         """
         # add the head node
-        head = Node(label = stats.mode(labels, keepdims=False), \
+        head = Node(label = stats.mode(labels, keepdims=False)[0], \
                     group = np.ma.make_mask(np.ones(labels.shape[0])),
                     loss = labels.shape[0])
         self.node_list.append(head) #initialize node list to [head]
@@ -146,7 +149,7 @@ class DecisionTree:
                 # sinc leaf nodes' indicies are tracked, deleting them from the list is not efficient.
                 # the leaf nodes that are not leaves anymore are set to None
                 if not self.node_list[ind].isLeaf(): continue
-                print(f"Leaf #{leaf_tracker} for depth {depth}")
+                print(f"Leaf #{leaf_tracker} for depth {self.leaf_count}")
                 leaf_tracker+=1
                 #group is the indicies (boolean mask) that this leaf node has access to
                 for dim in range(45):
@@ -177,6 +180,7 @@ class DecisionTree:
 
             #add new leaves to nodes and leaves
             self.node_list += [left, right]
+            self.leaf_count += 1
 
             #sanity check: make sure that nodes are exclusively branches or leaves
             for i in self.node_list:

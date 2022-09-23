@@ -43,7 +43,7 @@ class Node:
 
     def getNext(self):
         assert (self.next1!=-1 and self.next2 !=-1)
-        return self.left, self.right
+        return self.next1, self.next2
     
     def convertToBranch(self, thresh:float, dim:int, left_ind, right_ind):
         """
@@ -61,20 +61,21 @@ class Node:
         self.index = None
         self.loss = None
 
-    def split(self, features, t = None, d = None):
+    def split(self, features, t = None, d = None, g = None):
         """
         returns split data boolean index mask 
         features: 45 x N
         """
         if t == None: t = self.threshold
         if d == None: d = self.dimension
+        if g == None: g = self.group
 
         target_dimension = features[d]
         left_mask = (np.where(target_dimension < t, True, False))
         right_mask = (np.where(target_dimension >= t, True, False))
 
-        valid_left = self.group * left_mask
-        valid_right = self.group * right_mask
+        valid_left = g * left_mask
+        valid_right = g * right_mask
         return valid_left, valid_right
 
 if __name__ == '__main__':
