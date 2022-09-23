@@ -17,12 +17,14 @@ class Node:
     def __repr__(self):
         return f"\n (thresh:{self.threshold},\n  dimension:{self.dimension},\n  left_index:{self.next1},\n  rigth_index:{self.next2})\n"
     
-    def assign_next(N1, N2):
-        next1 = N1
-        next2 = N2
-    
     def isLeaf(self):
-        return (self.next1==-1 and self.next2==-1)
+        return (self.threshold==-1 and self.dimension == -1 \
+            and self.next1==-1 and self.next2==-1)
+    
+    def isBranch(self):
+        return (self.label == None and\
+                self.index == None and\
+                self.loss == None)
     
     def getLabel(self):
         if self.label == None:
@@ -31,7 +33,7 @@ class Node:
 
     def getGroup(self):
         if self.group == None:
-            raise ValueError("this 'leafd' node doesn't have a group, something is wrong")
+            raise ValueError("this 'leaf' node doesn't have a group, something is wrong")
         return 
     
     def getLoss(self):
@@ -47,15 +49,14 @@ class Node:
         """
         ***Only used on leaf nodes to turn into branch nodes
         """
-        if self.threshold != None: 
+        if self.threshold != -1: 
             raise ValueError("Threshold for this node already set (probably not a leaf node)")
-        if self.dimension != None: 
+        if self.dimension != -1: 
             raise ValueError("Dimension for this node already set (probably not a leaf node)")
         self.threshold = thresh
         self.dimension = dim
         self.next1 = left_ind
         self.next2 = right_ind
-        self.group = None
         self.label = None
         self.index = None
         self.loss = None
@@ -69,8 +70,9 @@ class Node:
         if d == None: d = self.dimension
 
         target_dimension = features[d]
-        left_mask = (np.where(target_dimension < t, False, True))
-        right_mask = (np.where(target_dimension >= t, False, True))
+        left_mask = (np.where(target_dimension < t, True, False))
+        right_mask = (np.where(target_dimension >= t, True, False))
+
         valid_left = self.group * left_mask
         valid_right = self.group * right_mask
         return valid_left, valid_right

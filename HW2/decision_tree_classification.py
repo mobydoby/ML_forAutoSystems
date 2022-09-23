@@ -52,10 +52,17 @@ if __name__ == "__main__":
     print(W.shape)
 
     X_train, X_test = get_features_from_images(W, images_train, images_test)
+    
 
     print(X_train.shape, X_test.shape) #(45, 60000), (45, 10000)
     print(labels_train.shape, labels_test.shape) #(60000,) (10000,)
 
-    # Model = DecisionTree(10)
-    # Model.predict(X_train)
-    # create tree features
+    #train model
+    Model = DecisionTree()
+    Model.train(X_train[:, :10000], labels_train[:10000], 10)
+
+    #test model
+    # Model.test(X_test, labels_test)
+
+
+
