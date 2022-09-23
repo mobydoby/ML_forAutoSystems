@@ -141,16 +141,18 @@ class DecisionTree:
             }
             #get groups/regions from current tree structure 
             #find best dimension globally
+            leaf_tracker = 0
             for ind in range(len(self.node_list)):
                 # sinc leaf nodes' indicies are tracked, deleting them from the list is not efficient.
                 # the leaf nodes that are not leaves anymore are set to None
                 if not self.node_list[ind].isLeaf(): continue
-                print(f"Leaf #{ind}")
+                print(f"Leaf #{leaf_tracker} for depth {depth}")
+                leaf_tracker+=1
                 #group is the indicies (boolean mask) that this leaf node has access to
                 for dim in range(45):
                     if dim%9 == 0:
                         print(f"Training dimension: {dim}/45")
-                    step_size = 1000
+                    step_size = 100
                     for i in range(1, step_size):
                         i = i/step_size #test_threshold
                         #determine accuracy of after splitting on ind leaf

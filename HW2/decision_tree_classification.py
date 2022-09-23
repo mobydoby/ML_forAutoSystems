@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from decision_tree import DecisionTree
 import pandas as pd
-from node import Node
+import pickle
 
 
 def plot_image(image_list):
@@ -59,10 +59,14 @@ if __name__ == "__main__":
 
     #train model
     Model = DecisionTree()
-    Model.train(X_train[:, :10000], labels_train[:10000], 10)
+    Model.train(X_train, labels_train, 10)
+    
+    # pickle_out = open("BT.pickle","wb")
+    # pickle.dump(Model, pickle_out)
+    # pickle_out.close()
 
     #test model
-    # Model.test(X_test, labels_test)
+    Model.test(X_test, labels_test)
 
 
 
