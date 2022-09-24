@@ -14,6 +14,9 @@ class DecisionTree:
         # global prediction variable to store predictions for inputs
         self.predictions = np.array([])
 
+    def show_labels(self):
+        return [i.getLabel() for i in self.node_list if i.isLeaf()]
+
     def branch(self, X, node_index, group):
         """
         branch is recursive function for calculating predictions.
@@ -73,6 +76,7 @@ class DecisionTree:
         leaf = self.node_list[ind]
         other_loss = sum([i.getLoss() for i in self.node_list if i.isLeaf()]) - leaf.getLoss()
         left_mask, right_mask = leaf.split(X, threshold, dimension)
+        assert(np.array_equal(leaf.getGroup(), left_mask+right_mask))
         left_label = stats.mode(Y[left_mask], keepdims=True)[0]
         right_label = stats.mode(Y[right_mask], keepdims=True)[0]
         loss_for_split = np.sum(np.where(Y[left_mask]!=left_label, 1, 0)) +\
@@ -149,13 +153,13 @@ class DecisionTree:
                 # sinc leaf nodes' indicies are tracked, deleting them from the list is not efficient.
                 # the leaf nodes that are not leaves anymore are set to None
                 if not self.node_list[ind].isLeaf(): continue
-                print(f"Leaf #{leaf_tracker} for depth {self.leaf_count}")
+                print(f"Leaf #{leaf_tracker} for depth {self.leaf_count+1}")
                 leaf_tracker+=1
                 #group is the indicies (boolean mask) that this leaf node has access to
                 for dim in range(45):
-                    if dim%9 == 0:
-                        print(f"Training dimension: {dim}/45")
-                    step_size = 100
+                    # if dim%9 == 0:
+                    #     print(f"Training dimension: {dim}/45")
+                    step_size = 10
                     for i in range(1, step_size):
                         i = i/step_size #test_threshold
                         #determine accuracy of after splitting on ind leaf

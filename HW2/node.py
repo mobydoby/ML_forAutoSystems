@@ -32,9 +32,9 @@ class Node:
         return self.label
 
     def getGroup(self):
-        if self.group == None:
+        if self.group is None:
             raise ValueError("this 'leaf' node doesn't have a group, something is wrong")
-        return 
+        return self.group
     
     def getLoss(self):
         if self.loss == None:
@@ -68,7 +68,7 @@ class Node:
         """
         if t == None: t = self.threshold
         if d == None: d = self.dimension
-        if g == None: g = self.group
+        if g is None: g = self.group
 
         target_dimension = features[d]
         left_mask = (np.where(target_dimension < t, True, False))
