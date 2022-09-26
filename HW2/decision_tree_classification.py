@@ -47,7 +47,7 @@ if __name__ == "__main__":
     images_test = np.asarray(images_list_test).astype(float)
     labels_test = np.asarray(labels_list_test).astype(float)
 
-    num_leaves = 10
+    leaves = 100
 
     # importing weights
     W = pd.read_csv("../HW1/weights.csv").to_numpy()[0:,1:] # W.shape = 45 x N
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         input_file.close()
         
         with open("plot_data.pickle", "rb") as plot_file:
-            plot = pickle.load(input_file)
+            plot = pickle.load(plot_file)
         plot_file.close()
 
         #test model
@@ -83,7 +83,6 @@ if __name__ == "__main__":
         }
         #train model
         Model = DecisionTree()
-        leaves = 200
         Model.train(X_train, labels_train, leaves, plot)
 
         #if path given for saving data, save the thing.
