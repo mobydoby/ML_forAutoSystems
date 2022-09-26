@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     # importing weights
     W = pd.read_csv("../HW1/weights.csv").to_numpy()[0:,1:] # W.shape = 45 x N
-    print(W.shape)
+    # print(W.shape) # 45 x 785
 
     X_train, X_test = get_features_from_images(W, images_train, images_test)
 
@@ -65,20 +65,47 @@ if __name__ == "__main__":
         with open(sys.argv[2], "rb") as input_file:
             Model = pickle.load(input_file)
         input_file.close()
+        
+        with open("plot_data.pickle", "rb") as plot_file:
+            plot = pickle.load(input_file)
+        plot_file.close()
+
+        #test model
+        print(Model.show_labels())
+        Model.test(X_test, labels_test)
+   
     else:
+        plot = {
+            "train": [1],
+            "test": [1],
+            "features": X_test,
+            "labels": labels_test
+        }
         #train model
         Model = DecisionTree()
-        Model.train(X_train, labels_train, 100)
+        leaves = 200
+        Model.train(X_train, labels_train, leaves, plot)
 
         #if path given for saving data, save the thing.
         if len(sys.argv) == 3: 
             with open(sys.argv[2], "wb") as out_file:
                 pickle.dump(Model, out_file)
+            with open("plot_data.pickle"< "wb") as plot_file:
+                pickle.dump(plot, plot_file)
             out_file.close()
+            plot_file.close()
+    
+    t = np.arange(0, leaves + leaves/10, leaves/10)*100
+    print(t, plot["train"], plot["test"])
+    plt.plot(t, plot["train"], 'r', t, plot["test"], 'b')
+    plt.ylabel('loss')
+    plt.xlabel('number of leaves')
+    plt.title('leaves vs. training and testing loss %')
+    plt.show()
 
-    #test model
-    print(Model.show_labels())
-    Model.test(X_test, labels_test)
+        
+
+    
 
 
 
