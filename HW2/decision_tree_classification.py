@@ -47,10 +47,10 @@ if __name__ == "__main__":
     images_test = np.asarray(images_list_test).astype(float)
     labels_test = np.asarray(labels_list_test).astype(float)
 
-    leaves = 100
+    leaves = 500
 
     # importing weights
-    W = pd.read_csv("../HW1/weights.csv").to_numpy()[0:,1:] # W.shape = 45 x N
+    W = pd.read_csv("weights.csv").to_numpy()[0:,1:] # W.shape = 45 x N
     # print(W.shape) # 45 x 785
 
     X_train, X_test = get_features_from_images(W, images_train, images_test)
@@ -89,17 +89,19 @@ if __name__ == "__main__":
         if len(sys.argv) == 3: 
             with open(sys.argv[2], "wb") as out_file:
                 pickle.dump(Model, out_file)
-            with open("plot_data.pickle"< "wb") as plot_file:
+            with open("plot_data.pickle", "wb") as plot_file:
                 pickle.dump(plot, plot_file)
             out_file.close()
             plot_file.close()
     
-    t = np.arange(0, leaves + leaves/10, leaves/10)*100
+    t = np.arange(0, leaves + leaves/10, leaves/10)
     print(t, plot["train"], plot["test"])
-    plt.plot(t, plot["train"], 'r', t, plot["test"], 'b')
-    plt.ylabel('loss')
+    plt.plot(t, np.array(plot["train"])*100, 'r', t, np.array(plot["test"])*100, 'b')
+    plt.ylabel('loss %')
     plt.xlabel('number of leaves')
     plt.title('leaves vs. training and testing loss %')
+    for i, j in zip(t, plot["test"]):
+        plt.text(i, j, '({}, {})'.format(i, j))
     plt.show()
 
         

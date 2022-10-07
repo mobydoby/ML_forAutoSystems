@@ -160,5 +160,5 @@ if __name__ == "__main__":
             all_weights = np.vstack((all_weights, W))
             print(all_weights.shape)
     print(all_weights.shape)
-    pd.DataFrame(all_weights).to_csv('weights.csv')
+    # pd.DataFrame(all_weights).to_csv('weights.csv')
 

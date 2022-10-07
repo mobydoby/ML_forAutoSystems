@@ -137,7 +137,7 @@ class DecisionTree:
         self.node_list.append(head) #initialize node list to [head]
         self.leaf_count = 1
         while (self.leaf_count < depth):
-            print(f"Training iteration for the {self.leaf_count+1} iteration\n\
+            print(f"Training iteration for the {self.leaf_count+1} iteration\r\n\
                     ============================================")
             #keep track of the best split to create node later
             best = {
@@ -163,7 +163,7 @@ class DecisionTree:
                 for dim in range(45):
                     # if dim%9 == 0:
                     #     print(f"Training dimension: {dim}/45")
-                    step_size = 10
+                    step_size = 5
                     for i in range(1, step_size):
                         i = i/step_size #test_threshold
                         #determine accuracy of after splitting on ind leaf
